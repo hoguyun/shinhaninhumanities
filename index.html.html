@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심리테스트 - 인문학 추천</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            position: relative;
+        }
+
+        /* 겉표지 화면 */
+        .cover-container {
+            text-align: center;
+            padding: 15% 0;
+            height: 100vh;
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .cover-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .start-btn {
+            background-color: #f57c00; /* 주황색 */
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-size: 24px;
+            transition: background-color 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background-color: #e65100; /* 어두운 주황색 */
+        }
+
+        /* 오른쪽 상단 텍스트 */
+        .header-text {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2f3e9e;
+        }
+
+        /* 질문 및 선택지 레이아웃 */
+        .question-container {
+            text-align: center;
+            padding: 5% 10%;
+            height: 100vh;
+            box-sizing: border-box;
+            display: none;
+        }
+
+        .question {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #2f3e9e;
+        }
+
+        .answers {
+            margin-bottom: 50px;
+        }
+
+        .answer {
+            background-color: navy; /* 남색 */
+            padding: 20px 40px;
+            margin: 20px;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 25px;
+            width: 60%;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .answer:hover {
+            background-color: #000080; /* 더 어두운 남색 */
+        }
+
+        .btn {
+            background-color: #f57c00; /* 주황색 */
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-size: 24px;
+            width: 60%;
+            margin: 30px auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e65100; /* 어두운 주황색 */
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2f3e9e;
+        }
+
+        .result-description {
+            font-size: 24px;
+            margin-top: 30px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 겉표지 -->
+    <div id="cover" class="cover-container">
+        <div class="cover-title">인문학 큐레이션 by 신한인의 시선</div>
+        <button id="start-btn" class="start-btn" onclick="startQuiz()">시작</button>
+    </div>
+
+    <!-- 질문지 화면 -->
+    <div id="quiz" class="question-container">
+        <div id="question-container">
+            <!-- Question and answers will be dynamically injected here -->
+        </div>
+        <button id="next-btn" class="btn" style="display:none;" onclick="nextQuestion()">다음</button>
+        <button id="result-btn" class="btn" style="display:none;" onclick="showResult()">결과보기</button>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div id="result" class="result-container">
+        <h2 class="result-title">추천 인문학</h2>
+        <p id="recommended-book" class="result-description"></p>
+        <button class="btn" onclick="restartQuiz()">다시 시작</button>
+    </div>
+
+    <div class="header-text">인문학 큐레이션 by 신한인의 시선</div>
+
+    <script>
+        const questions = [
+            {
+                question: "Q1.상사가 '우리 내일까지 보고서 만들어야겠지?'라고 말하면 나는?",
+                options: ["A. 이미 머릿속에 초안과 목차가 떠오른다.", "B. '내일...까지요?' 하고 잠시 숨 고른다."]
+            },
+            {
+                question: "Q2. 점심 메뉴를 고르는 상황에서 나는?",
+                options: ["A. 일주일 치 메뉴를 미리 정리해 둔다.", "B. '그냥 아무거나!'라고 해놓고, 막상 메뉴가 나오면 마음에 안 든다."]
+            },
+            {
+                question: "Q3. 회식 자리에서 동료가 갑자기 노래를 부르자고 하면?",
+                options: ["A. 조용히 박수치며 화장실 갈 타이밍을 찾는다.", "B. '무슨 노래 부를까?'라며 앞자리로 나간다."]
+            },
+            {
+                question: "Q4. 메일에 답장할 때, 내 스타일은?",
+                options: ["A. 제목, 본문, 인사말까지 완벽히 구성해 보내야 직성이 풀린다.", "B. '넵' 한 글자도 충분하다고 생각한다."]
+            },
+            {
+                question: "Q5. 월요일 아침 회의에서 내 모습은?",
+                options: ["A. 커피를 한 손에 들고 이미 회의록을 준비한 상태다.", "B. 누군가 내 이름을 부를 때까지 카메라 끄고 대기한다."]
+            },
+            {
+                question: "Q6. 새로운 업무가 떨어졌을 때, 나는?",
+                options: ["A. '이건 이렇게 하고, 저건 저렇게 하면 되겠군.' 계획을 세운다.", "B. '이건... 어떻게 시작하지?'라며 잠시 멍해진다."]
+            },
+            {
+                question: "Q7. 동료가 '재미있는 얘기 하나 해봐'라고 할 때 나는?",
+                options: ["A. 갑작스러운 요청에 멍해지며 '어...다음에 얘기할게.'", "B. 주저하지 않고 '그거 알아요?'라며 이야기를 시작한다."]
+            },
+            {
+                question: "Q8. 회사 워크숍에서 조별 발표를 준비할 때, 나는?",
+                options: ["A. PPT를 10장으로 깔끔히 정리하며 발표 문구까지 작성한다.", "B. '우리가 이걸로 1등할 수 있을까요?'라고 드립을 던지며 아이디어를 낸다."]
+            },
+            {
+                question: "Q9. 팀원 생일 축하 이벤트를 준비할 때 나는?",
+                options: ["A. 초부터 케이크까지 미리 다 준비해 깜짝 이벤트를 계획한다.", "B. '아 맞다 오늘 생일이었지!'라며 초를 대신 성냥으로 찾는다."]
+            },
+            {
+                question: "Q10. 사무실 간식을 마지막으로 남긴 사람이 먹을 때 나는?",
+                options: ["A. '누가 먹으라고 놓은 건지 확인부터 해야지.'", "B. '이건 나의 몫이다!'라며 냉큼 먹는다."]
+            }
+        ];
+
+        const books = [
+            { title: "작별하지 않는다 - 한강", description: "이 소설은 사랑과 이별의 복잡한 감정을 탐구하며, 인간 존재의 근본적인 고독을 그립니다." },
+            { title: "다니엘 아샴 (서울 3024)", description: "미래를 기반으로 한 독특한 시각을 제시하는 작품입니다." },
+            { title: "사랑과 죽음의 성", description: "역사를 이해하고 기억하는 것이 우리 삶에 어떤 가치를 더하는지 고민하는 책입니다." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let selectedAnswers = [];
+
+        function startQuiz() {
+            document.getElementById("cover").style.display = 'none';
+            document.getElementById("quiz").style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById("question-container").innerHTML = `
+                <div class="question">${question.question}</div>
+                <div class="answers">
+                    <button class="answer" onclick="selectAnswer('A')">${question.options[0]}</button>
+                    <button class="answer" onclick="selectAnswer('B')">${question.options[1]}</button>
+                </div>
+            `;
+        }
+
+        function selectAnswer(answer) {
+            selectedAnswers.push(answer);
+            if (currentQuestionIndex === 9) {
+                document.getElementById("next-btn").style.display = 'none'; // Hide next button on Q10
+                document.getElementById("result-btn").style.display = 'block'; // Show result button on Q10
+            } else {
+                document.getElementById("next-btn").style.display = 'block'; // Show next button
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+            document.getElementById("next-btn").style.display = 'none'; // Hide next button
+        }
+
+        function showResult() {
+            document.getElementById("quiz").style.display = 'none';
+            document.getElementById("result").style.display = 'block';
+            const randomBook = books[Math.floor(Math.random() * books.length)];
+            document.getElementById("recommended-book").innerHTML = `
+                <strong>${randomBook.title}</strong><br>
+                ${randomBook.description}
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            selectedAnswers = [];
+            document.getElementById("quiz").style.display = 'block';
+            document.getElementById("result").style.display = 'none';
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>
